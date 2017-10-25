@@ -627,7 +627,7 @@ MenuComponent = __decorate([
 /***/ "../../../../../src/app/people.component.html":
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"memory main\">\n  <div class=\"header\">\n    <app-menu></app-menu>\n    <h1 class=\"center\">Qui est qui ?</h1>\n  </div>\n\n  <section>\n    <article >\n      <div *ngFor=\"let p of defaultPeople\">\n        {{ p.value }}: <input type=\"text\" [(ngModel)]=\"memoryService.people[p.name]\"/>\n      </div>\n    </article>\n\n    <div class=\"bottom\">\n      <a class=\"button search-bg\" href=\"#/search\">Chercher un souvenir</a>\n    </div>\n\n  </section>\n</div>\n"
+module.exports = "<div class=\"memory main\">\n  <div class=\"header\">\n    <app-menu></app-menu>\n    <h1 class=\"center\">Qui est qui ?</h1>\n  </div>\n\n  <section>\n    <article >\n      <div class=\"qui-line\" *ngFor=\"let p of defaultPeople\">\n        <div>{{ p.value }}:</div> <input type=\"text\" [(ngModel)]=\"memoryService.people[p.name]\"/>\n      </div>\n    </article>\n\n    <div class=\"bottom\">\n      <a class=\"button search-bg\" href=\"#/search\">Chercher un souvenir</a>\n    </div>\n\n  </section>\n</div>\n"
 
 /***/ }),
 
@@ -1006,9 +1006,10 @@ var TeleComponent = (function () {
         }
         var orientation = 160 + this.orientation;
         var vitesse = 0;
-        var position = this.origin;
+        var position = this.origin.slice();
+        this.currentParcour = this.emptyLevel.slice();
         this.currentLevelIndex = 0;
-        this.currentParcour = this.emptyLevel;
+        console.log(position, orientation, this.currentParcour);
         for (var i = 1; i < this.mots.length - 1; ++i) {
             switch (this.mots[i]) {
                 case 'gadoola':
@@ -1035,6 +1036,7 @@ var TeleComponent = (function () {
                     }
                     catch (e) {
                         this.testResult = 'wall';
+                        console.log(e);
                         return;
                     }
                     break;
