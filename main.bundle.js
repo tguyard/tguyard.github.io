@@ -576,7 +576,7 @@ var MemoryService = (function () {
     };
     MemoryService.prototype.clear = function () {
         this.saved = [];
-        localStorage.removeItemsetItem('fragments');
+        localStorage.removeItem('fragments');
     };
     return MemoryService;
 }());
