@@ -571,7 +571,7 @@ var MemoryService = (function () {
         if (this.saved.find(function (f) { return f != null && fragment.id === f.id; }) == null) {
             this.saved.push(fragment);
             this.saved.sort(function (a, b) { return a.order - b.order; });
-            localStorage.setItem('fragments', JSON.stringify(this.saved.map(function (f) { return f.id; })));
+            localStorage.setItem('fragments', JSON.stringify(this.saved.filter(function (f) { return f != null; }).map(function (f) { return f.id; })));
         }
     };
     MemoryService.prototype.clear = function () {
@@ -792,7 +792,6 @@ var SearchComponent = (function () {
         this.fragments = this.searchService.findAll(words);
         if (this.fragments.length > 0) {
             for (var i = 0; i < this.fragments.length; ++i) {
-                console.log("save", this.fragments[i].title);
                 this.memoryService.save(this.fragments[i]);
             }
         }
