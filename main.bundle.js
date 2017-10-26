@@ -48,20 +48,6 @@ var AdminComponent = (function () {
     function AdminComponent(memoryService, fragmentService) {
         this.memoryService = memoryService;
         this.fragmentService = fragmentService;
-        this.defaultPeople = [
-            { name: 'CONTREMAITRE', value: '☯' },
-            { name: 'SOLDAT', value: '♞' },
-            { name: 'AGENT', value: '☂' },
-            { name: 'JOURNALISTE', value: '★' },
-            { name: 'ERUDIT', value: '☀' },
-            { name: 'MONSTRE', value: '❤' },
-            { name: 'TELE', value: '☢' },
-            { name: 'VOYANTE', value: '☎' },
-            { name: 'CHEF', value: '⚐' },
-            { name: 'ESCLAVE', value: '⚓' },
-            { name: 'FLIC', value: '♬' },
-            { name: 'SUPERIEUR', value: '☘' }
-        ];
         this.users = [];
         this.origin = window.location.origin;
         var users = {};
@@ -107,8 +93,11 @@ var _a, _b;
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return AppComponent; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__("../../../core/@angular/core.es5.js");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_router__ = __webpack_require__("../../../router/@angular/router.es5.js");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_filter__ = __webpack_require__("../../../../rxjs/add/operator/filter.js");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_filter___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_filter__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__memory_service__ = __webpack_require__("../../../../../src/app/memory.service.ts");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_filter__ = __webpack_require__("../../../../rxjs/add/operator/filter.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_filter___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_filter__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_rxjs_add_operator_map__ = __webpack_require__("../../../../rxjs/add/operator/map.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_rxjs_add_operator_map___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_rxjs_add_operator_map__);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -121,12 +110,17 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 
 
 
+
+
 var AppComponent = (function () {
-    function AppComponent(route) {
+    function AppComponent(route, memoryService) {
         route.queryParamMap
             .filter(function (m) { return m.has('userId'); })
             .map(function (m) { return m.get('userId'); })
-            .subscribe(function (userId) { return localStorage.setItem('userId', userId); });
+            .subscribe(function (userId) {
+            localStorage.setItem('userId', userId);
+            memoryService.initPeople();
+        });
         route.queryParamMap
             .filter(function (m) { return m.has('name'); })
             .map(function (m) { return m.get('name'); })
@@ -139,10 +133,10 @@ AppComponent = __decorate([
         selector: 'app-root',
         template: "\n   <router-outlet></router-outlet>\n "
     }),
-    __metadata("design:paramtypes", [typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__angular_router__["a" /* ActivatedRoute */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1__angular_router__["a" /* ActivatedRoute */]) === "function" && _a || Object])
+    __metadata("design:paramtypes", [typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__angular_router__["a" /* ActivatedRoute */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_1__angular_router__["a" /* ActivatedRoute */]) === "function" && _a || Object, typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_2__memory_service__["a" /* MemoryService */] !== "undefined" && __WEBPACK_IMPORTED_MODULE_2__memory_service__["a" /* MemoryService */]) === "function" && _b || Object])
 ], AppComponent);
 
-var _a;
+var _a, _b;
 //# sourceMappingURL=app.component.js.map
 
 /***/ }),
@@ -540,6 +534,8 @@ module.exports = module.exports.toString();
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return MemoryService; });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__("../../../core/@angular/core.es5.js");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__fragment_service__ = __webpack_require__("../../../../../src/app/fragment.service.ts");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_random_seed__ = __webpack_require__("../../../../random-seed/index.js");
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_random_seed___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_random_seed__);
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -551,6 +547,8 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 };
 
 
+
+// require('random-seed');
 var MemoryService = (function () {
     function MemoryService(fragmentService) {
         this.saved = [];
@@ -568,9 +566,48 @@ var MemoryService = (function () {
             FLIC: '♬',
             SUPERIEUR: '☘'
         };
+        this.defaultPeople = [];
+        this.initPeople();
         var ids = (JSON.parse(localStorage.getItem('fragments')) || []);
         this.saved = ids.map(function (id) { return fragmentService.getById(id); });
     }
+    MemoryService.prototype.initPeople = function () {
+        var init = ['☯', '♞', '☂', '☀', '★', '☢', '❤', '☎', '⚓', '⚐', '♬', '☘'];
+        var index = 0;
+        if (localStorage.getItem('userId') != null) {
+            var r = __WEBPACK_IMPORTED_MODULE_2_random_seed__["create"](localStorage.getItem('userId'));
+            index = r.range(init.length);
+        }
+        this.people = {
+            CONTREMAITRE: init[index++ % init.length],
+            SOLDAT: init[index++ % init.length],
+            AGENT: init[index++ % init.length],
+            ERUDIT: init[index++ % init.length],
+            JOURNALISTE: init[index++ % init.length],
+            TELE: init[index++ % init.length],
+            MONSTRE: init[index++ % init.length],
+            VOYANTE: init[index++ % init.length],
+            ESCLAVE: init[index++ % init.length],
+            CHEF: init[index++ % init.length],
+            FLIC: init[index++ % init.length],
+            SUPERIEUR: init[index++ % init.length],
+        };
+        this.defaultPeople = [
+            { name: 'CONTREMAITRE', value: this.people.CONTREMAITRE },
+            { name: 'SOLDAT', value: this.people.SOLDAT },
+            { name: 'AGENT', value: this.people.AGENT },
+            { name: 'JOURNALISTE', value: this.people.JOURNALISTE },
+            { name: 'ERUDIT', value: this.people.ERUDIT },
+            { name: 'MONSTRE', value: this.people.MONSTRE },
+            { name: 'TELE', value: this.people.TELE },
+            { name: 'VOYANTE', value: this.people.VOYANTE },
+            { name: 'CHEF', value: this.people.CHEF },
+            { name: 'ESCLAVE', value: this.people.ESCLAVE },
+            { name: 'FLIC', value: this.people.FLIC },
+            { name: 'SUPERIEUR', value: this.people.SUPERIEUR }
+        ];
+        return this.people;
+    };
     MemoryService.prototype.save = function (fragment) {
         if (this.saved.find(function (f) { return f != null && fragment.id === f.id; }) == null) {
             this.saved.push(fragment);
@@ -647,7 +684,7 @@ MenuComponent = __decorate([
 /***/ "../../../../../src/app/people.component.html":
 /***/ (function(module, exports) {
 
-module.exports = "<div class=\"memory main\">\n  <div class=\"header\">\n    <app-menu></app-menu>\n    <h1 class=\"center\">Qui est qui ?</h1>\n  </div>\n\n  <section>\n    <article >\n      <div class=\"qui-line\" *ngFor=\"let p of defaultPeople\">\n        <div>{{ p.value }}:</div> <input type=\"text\" [(ngModel)]=\"memoryService.people[p.name]\"/>\n      </div>\n    </article>\n\n    <!-- <div class=\"bottom\">\n      <a class=\"button search-bg\" href=\"#/search\">Chercher un souvenir</a>\n    </div> -->\n\n  </section>\n</div>\n"
+module.exports = "<div class=\"memory main\">\n  <div class=\"header\">\n    <app-menu></app-menu>\n    <h1 class=\"center\">Qui est qui ?</h1>\n  </div>\n\n  <section>\n    <article >\n      <div class=\"qui-line\" *ngFor=\"let p of memoryService.defaultPeople\">\n        <div>{{ p.value }}:</div> <input type=\"text\" [(ngModel)]=\"memoryService.people[p.name]\"/>\n      </div>\n    </article>\n\n    <!-- <div class=\"bottom\">\n      <a class=\"button search-bg\" href=\"#/search\">Chercher un souvenir</a>\n    </div> -->\n\n  </section>\n</div>\n"
 
 /***/ }),
 
@@ -672,20 +709,6 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var PeopleComponent = (function () {
     function PeopleComponent(memoryService) {
         this.memoryService = memoryService;
-        this.defaultPeople = [
-            { name: 'CONTREMAITRE', value: '☯' },
-            { name: 'SOLDAT', value: '♞' },
-            { name: 'AGENT', value: '☂' },
-            { name: 'JOURNALISTE', value: '★' },
-            { name: 'ERUDIT', value: '☀' },
-            { name: 'MONSTRE', value: '❤' },
-            { name: 'TELE', value: '☢' },
-            { name: 'VOYANTE', value: '☎' },
-            { name: 'CHEF', value: '⚐' },
-            { name: 'ESCLAVE', value: '⚓' },
-            { name: 'FLIC', value: '♬' },
-            { name: 'SUPERIEUR', value: '☘' }
-        ];
     }
     return PeopleComponent;
 }());
